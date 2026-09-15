@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="bn">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MD GEN</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans Bengali', 'Kalpurush', sans-serif;
+            background: linear-gradient(135deg, #7c9e8c 0%, #3d5548 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            align-items: start;
+        }
+
+        .form-section,
+        .preview-section {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1,
+        h2 {
+            color: #22302a;
+            margin-bottom: 25px;
+            font-size: 28px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #5b6b62;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8e4;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+            font-family: inherit;
+        }
+
+        input[type="text"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #6b8f7a;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8e4;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+            font-family: inherit;
+            background: white;
+            cursor: pointer;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #6b8f7a;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .file-upload-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #6b8f7a;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .file-upload-btn:hover {
+            background: #587a68;
+        }
+
+        .file-name {
+            margin-left: 10px;
+            color: #666;
+            font-size: 13px;
+        }
+
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        button {
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .btn-generate {
+            background: linear-gradient(135deg, #6b8f7a 0%, #4b6657 100%);
+            color: white;
+        }
+
+        .btn-generate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(107, 143, 122, 0.4);
+        }
+
+        .btn-download {
+            background: linear-gradient(135deg, #c99a4b 0%, #a9762e 100%);
+            color: white;
+        }
+
+        .btn-download:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(201, 154, 75, 0.4);
+        }
+
+        .fb-note {
+            margin-top: 8px;
+            font-size: 12px;
+            color: #8a988f;
+        }
+
+        #bannerCanvas {
+            max-width: 100%;
+            max-height: 640px;
+        }
+
+        .canvas-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 400px;
+            background: #eef2ef;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="form-section">
+            <h1>🏥 ব্যানার জেনারেটর</h1>
+
+            <div class="form-group">
+                <label>ডাক্তারের নাম:</label>
+                <input type="text" id="doctorName" placeholder="ডাঃ X">
+            </div>
+
+            <div class="form-group">
+                <label>রঙের থিম নির্বাচন করুন:</label>
+                <select id="colorScheme" onchange="generateBanner()">
+                    <option value="green">সবুজ থিম (ডিফল্ট)</option>
+                    <option value="blue">নীল থিম</option>
+                    <option value="purple">বেগুনি থিম</option>
+                    <option value="teal">টিল থিম</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>বিশেষত্ব (একক লাইন):</label>
+                <input type="text" id="specialty" placeholder="মেডিসিন বিশেষজ্ঞ">
+            </div>
+
+            <div class="form-group">
+                <label>ডিগ্রি এবং অধিভুক্তি (নতুন লাইনের জন্য Enter ব্যবহার করুন):</label>
+                <textarea id="degrees"
+                    placeholder="এমবিবিএস, বিপিএল (স্বাস্থ্য) এমডি (মেডিসিন), বিএসএমএমইউ এমএসিপি (আমেরিকা)">এমবিবিএস, বিপিএল (স্বাস্থ্য) এমডি (মেডিসিন), বিএসএমএমইউ এমএসিপি (আমেরিকা)</textarea>
+            </div>
+
+            <div class="form-group">
+                <label>ক্লিনিক তথ্য (প্রতিটি লাইনে: ক্লিনিক নাম, ঠিকানা, চেম্বার সময়):</label>
+                <textarea id="clinicInfo"
+                    placeholder="শতাব্দী মেডিকেল সার্ভিস&#10;৩৩, রূপস, নিরের মহল্লা , সিলেট&#10;চেম্বার সময়: শনিবার থেকে বৃহস্পতিবার (জুম্মার বাদ)">শতাব্দী মেডিকেল সার্ভিস
+৩৩, রূপস, নিরের মহল্লা , সিলেট
+চেম্বার সময়: শনিবার থেকে বৃহস্পতিবার (জুম্মার বাদ)</textarea>
+            </div>
+
+            <div class="form-group">
+                <label>যোগাযোগ নম্বর (সিরিয়ালের জন্য):</label>
+                <input type="text" id="contact" placeholder="01732-328633" value="01732-328633">
+            </div>
+
+            <div class="form-group">
+                <label>ডাক্তারের ছবি (আপলোড):</label>
+                <label class="file-upload-btn" for="doctorImage">ছবি নির্বাচন করুন</label>
+                <input type="file" id="doctorImage" accept="image/*">
+                <span class="file-name" id="fileName"></span>
+            </div>
+
+            <div class="form-group">
+                <label>লোগো ওয়াটারমার্ক (ঐচ্ছিক):</label>
+                <label class="file-upload-btn" for="logoImage">লোগো নির্বাচন করুন</label>
+                <input type="file" id="logoImage" accept="image/*">
+                <span class="file-name" id="logoFileName"></span>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn-generate" onclick="generateBanner()">ব্যানার তৈরি করুন</button>
+                <button class="btn-download" onclick="downloadBanner()">WebP হিসাবে ডাউনলোড করুন</button>
+            </div>
+            <div class="fb-note">📱 ফেসবুকে শেয়ার করার জন্য অপ্টিমাইজড (৪:৫ পোর্ট্রেট ফরম্যাট)</div>
+        </div>
+
+        <div class="preview-section">
+            <h2>📋 প্রিভিউ</h2>
+            <div class="canvas-container">
+                <canvas id="bannerCanvas"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let doctorImageData = null;
+        let logoImageData = null;
+        let fontsLoaded = false;
+        let chamberIconLoaded = false;
+        let chamberIconImg = null;
+
+        // Custom brand font for the banner (Noto Sans Bengali stays as a
+        // fallback in case this fails to load or is missing a glyph).
+        // Place dsfont.woff2 in the same folder as this HTML file.
+        const DS_FONT_URL = 'dsfont.woff2';
+        const dsFontFace = new FontFace('DS Font', `url(${DS_FONT_URL})`);
+
+        function whenFontsReady() {
+            const specs = [
+                '400 40px "Noto Sans Bengali"',
+                '500 40px "Noto Sans Bengali"',
+                '600 40px "Noto Sans Bengali"',
+                '700 40px "Noto Sans Bengali"'
+            ];
+            return dsFontFace.load().then(function (loaded) {
+                document.fonts.add(loaded);
+            }).catch(function () {
+                console.log('DS Font failed to load, falling back to Noto Sans Bengali');
+            }).then(function () {
+                return Promise.all(specs.map(s => document.fonts.load(s)));
+            }).then(() => document.fonts.ready);
+        }
+
+        whenFontsReady().then(function () {
+            fontsLoaded = true;
+            generateBanner();
+        }).catch(function () {
+            console.log('Font loading failed, using system fonts');
+            fontsLoaded = true;
+            generateBanner();
+        });
+
+        // Chamber section icon (place favicon-150x150.webp in the same
+        // folder as this HTML file), drawn next to "চেম্বার তথ্য"
+        (function loadChamberIcon() {
+            const img = new Image();
+            img.onload = function () {
+                chamberIconImg = img;
+                chamberIconLoaded = true;
+                generateBanner();
+            };
+            img.onerror = function () {
+                console.log('Chamber icon failed to load — check that favicon-150x150.webp is next to this HTML file');
+                chamberIconLoaded = true; // don't block rendering — just draw without it
+                generateBanner();
+            };
+            img.src = 'favicon-150x150.webp';
+        })();
+
+        // Default watermark logo (place logo.png in the same folder as this
+        // HTML file). Used whenever no logo is uploaded via the form.
+        let defaultLogoImg = null;
+        (function loadDefaultLogo() {
+            const img = new Image();
+            img.onload = function () {
+                defaultLogoImg = img;
+                generateBanner();
+            };
+            img.onerror = function () {
+                console.log('Default logo not found — check that logo.png is next to this HTML file');
+            };
+            img.src = 'logo.png';
+        })();
+
+        document.getElementById('doctorImage').addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                document.getElementById('fileName').textContent = file.name;
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    const img = new Image();
+                    img.onload = function () {
+                        doctorImageData = img;
+                        generateBanner();
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        document.getElementById('logoImage').addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                document.getElementById('logoFileName').textContent = file.name;
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    const img = new Image();
+                    img.onload = function () {
+                        logoImageData = img;
+                        generateBanner();
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // ---- Color handling -------------------------------------------------
+        // Every theme is now derived from one base color, in the same muted,
+        // low-saturation family as the requested #6b8f7a sage. "সবুজ" (green)
+        // uses that exact color as the default.
+        function hexToRgb(hex) {
+            const n = parseInt(hex.replace('#', ''), 16);
+            return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
+        }
+        function rgbToHex(r, g, b) {
+            const c = (v) => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, '0');
+            return '#' + c(r) + c(g) + c(b);
+        }
+        // percent > 0 lightens toward white, percent < 0 darkens toward black
+        function shade(hex, percent) {
+            const { r, g, b } = hexToRgb(hex);
+            const t = percent < 0 ? 0 : 255;
+            const p = Math.abs(percent) / 100;
+            return rgbToHex((t - r) * p + r, (t - g) * p + g, (t - b) * p + b);
+        }
+
+        function getColorScheme(scheme) {
+            const bases = {
+                green: '#6b8f7a',   // requested brand color
+                blue: '#5b7f9e',
+                purple: '#8b7a9e',
+                teal: '#5f9e94'
+            };
+            const base = bases[scheme] || bases.green;
+            return {
+                base: base,
+                dark: shade(base, -35),
+                tint: shade(base, 88),
+                tint2: shade(base, 78)
+            };
+        }
+
+        // ---- Small hand-drawn icons ------------------------------------------
+        function drawPin(ctx, cx, cy, r, color) {
+            ctx.save();
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.arc(cx, cy, r, Math.PI, 0, false);
+            ctx.lineTo(cx + r * 0.9, cy + r * 1.5);
+            ctx.quadraticCurveTo(cx, cy + r * 2.15, cx - r * 0.9, cy + r * 1.5);
+            ctx.closePath();
+            ctx.fill();
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            ctx.arc(cx, cy, r * 0.42, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+        }
+        function drawClock(ctx, cx, cy, r, color) {
+            ctx.save();
+            ctx.strokeStyle = color;
+            ctx.lineWidth = r * 0.24;
+            ctx.beginPath();
+            ctx.arc(cx, cy, r, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.lineCap = 'round';
+            ctx.lineWidth = r * 0.2;
+            ctx.beginPath();
+            ctx.moveTo(cx, cy);
+            ctx.lineTo(cx, cy - r * 0.55);
+            ctx.moveTo(cx, cy);
+            ctx.lineTo(cx + r * 0.4, cy + r * 0.12);
+            ctx.stroke();
+            ctx.restore();
+        }
+        function drawGlobe(ctx, cx, cy, r, color) {
+            ctx.save();
+            ctx.strokeStyle = color;
+            ctx.lineWidth = r * 0.18;
+            ctx.beginPath();
+            ctx.arc(cx, cy, r, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.ellipse(cx, cy, r * 0.45, r, 0, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(cx - r, cy);
+            ctx.lineTo(cx + r, cy);
+            ctx.stroke();
+            ctx.restore();
+        }
+        function drawPhoneIcon(ctx, cx, cy, r, color) {
+            ctx.save();
+            ctx.fillStyle = color;
+            ctx.font = Math.round(r * 2.4) + 'px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('☎', cx, cy + 1);
+            ctx.restore();
+        }
+
+        // ---- Decorative top-band medical motifs (kept faint/low-opacity) -----
+        function roundedRectPath(ctx, x, y, w, h, r) {
+            ctx.beginPath();
+            ctx.moveTo(x + r, y);
+            ctx.arcTo(x + w, y, x + w, y + h, r);
+            ctx.arcTo(x + w, y + h, x, y + h, r);
+            ctx.arcTo(x, y + h, x, y, r);
+            ctx.arcTo(x, y, x + w, y, r);
+            ctx.closePath();
+        }
+        // A clean rounded medical cross (nicer than the Arial ✚ glyph)
+        function drawMedicalCross(ctx, cx, cy, armLen, color) {
+            ctx.save();
+            ctx.fillStyle = color;
+            const t = armLen * 0.55, r = t * 0.35;
+            roundedRectPath(ctx, cx - t / 2, cy - armLen, t, armLen * 2, r);
+            ctx.fill();
+            roundedRectPath(ctx, cx - armLen, cy - t / 2, armLen * 2, t, r);
+            ctx.fill();
+            ctx.restore();
+        }
+        // An EKG / heartbeat pulse line
+        function drawPulseLine(ctx, x, y, w, color) {
+            ctx.save();
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 3.5;
+            ctx.lineJoin = 'round';
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(x + w * 0.26, y);
+            ctx.lineTo(x + w * 0.34, y - w * 0.14);
+            ctx.lineTo(x + w * 0.44, y + w * 0.18);
+            ctx.lineTo(x + w * 0.53, y - w * 0.08);
+            ctx.lineTo(x + w * 0.62, y);
+            ctx.lineTo(x + w, y);
+            ctx.stroke();
+            ctx.restore();
+        }
+        // A small pill capsule, drawn at an angle for a bit of energy
+        function drawCapsule(ctx, cx, cy, w, h, angle, color) {
+            ctx.save();
+            ctx.translate(cx, cy);
+            ctx.rotate(angle);
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 3;
+            roundedRectPath(ctx, -w / 2, -h / 2, w, h, h / 2);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(0, -h / 2);
+            ctx.lineTo(0, h / 2);
+            ctx.stroke();
+            ctx.restore();
+        }
+        // A simple stethoscope silhouette
+        function drawStethoscope(ctx, cx, cy, r, color) {
+            ctx.save();
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 4;
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.arc(cx, cy, r, Math.PI * 0.05, Math.PI * 1.05, false);
+            ctx.stroke();
+            const endX = cx + r * Math.cos(Math.PI * 1.05);
+            const endY = cy + r * Math.sin(Math.PI * 1.05);
+            ctx.beginPath();
+            ctx.moveTo(endX, endY);
+            ctx.lineTo(endX - r * 0.1, endY + r * 1.1);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(endX - r * 0.1, endY + r * 1.35, r * 0.28, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        // ---- Text wrapping helpers -------------------------------------------
+        // Left-aligned wrap. Returns Y of the line after the wrapped text.
+        function wrapTextLeft(ctx, text, x, y, maxWidth, lineHeight) {
+            const words = text.split(' ');
+            let line = '';
+            let currentY = y;
+            for (let n = 0; n < words.length; n++) {
+                const testLine = line + words[n] + ' ';
+                if (ctx.measureText(testLine).width > maxWidth && n > 0) {
+                    ctx.fillText(line, x, currentY);
+                    line = words[n] + ' ';
+                    currentY += lineHeight;
+                } else {
+                    line = testLine;
+                }
+            }
+            ctx.fillText(line, x, currentY);
+            return currentY + lineHeight;
+        }
+        // Centered wrap. Returns Y of the line after the wrapped text.
+        function wrapTextCenter(ctx, text, centerX, y, maxWidth, lineHeight) {
+            const words = text.split(' ');
+            let line = '';
+            const lines = [];
+            for (let n = 0; n < words.length; n++) {
+                const testLine = line + words[n] + ' ';
+                if (ctx.measureText(testLine).width > maxWidth && n > 0) {
+                    lines.push(line.trim());
+                    line = words[n] + ' ';
+                } else {
+                    line = testLine;
+                }
+            }
+            lines.push(line.trim());
+            let currentY = y;
+            const prevAlign = ctx.textAlign;
+            ctx.textAlign = 'center';
+            lines.forEach(l => {
+                ctx.fillText(l, centerX, currentY);
+                currentY += lineHeight;
+            });
+            ctx.textAlign = prevAlign;
+            return currentY;
+        }
+
+        // Fits one or more comma-separated phone numbers into at most
+        // `maxLines` lines within `maxWidth`, shrinking the font size as
+        // needed so a list of numbers never runs off the canvas edge.
+        function fitContactLines(ctx, text, maxWidth, maxLines, startSize, minSize, weight, family) {
+            const parts = text.split(',').map(s => s.trim()).filter(Boolean);
+            const full = parts.join(', ');
+            const fontStr = (size) => `${weight} ${size}px "${family}", Arial, sans-serif`;
+
+            const wrapAt = (size) => {
+                ctx.font = fontStr(size);
+                const lines = [];
+                let line = '';
+                parts.forEach(p => {
+                    const candidate = line ? line + ', ' + p : p;
+                    if (ctx.measureText(candidate).width > maxWidth && line) {
+                        lines.push(line);
+                        line = p;
+                    } else {
+                        line = candidate;
+                    }
+                });
+                if (line) lines.push(line);
+                return lines;
+            };
+
+            for (let size = startSize; size >= minSize; size -= 2) {
+                ctx.font = fontStr(size);
+                if (ctx.measureText(full).width <= maxWidth) return { lines: [full], size };
+                const lines = wrapAt(size);
+                if (lines.length <= maxLines && lines.every(l => ctx.measureText(l).width <= maxWidth)) {
+                    return { lines, size };
+                }
+            }
+            return { lines: wrapAt(minSize), size: minSize };
+        }
+
+        function generateBanner() {
+            if (!fontsLoaded) return;
+
+            const canvas = document.getElementById('bannerCanvas');
+            const ctx = canvas.getContext('2d');
+
+            // 1080x1394 — a near-4:5 portrait, the ratio Facebook's feed gives the
+            // most on-screen space to (square/old-landscape banners get
+            // cropped or shrunk in-feed).
+            const W = 1080, H = 1394;
+            canvas.width = W;
+            canvas.height = H;
+
+            const colorScheme = document.getElementById('colorScheme').value;
+            const c = getColorScheme(colorScheme);
+            const ink = '#22302a';
+            const muted = '#5b6b62';
+
+            // Background
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, W, H);
+
+            // --- Top band with a soft wave edge, doctor photo breaks out of it ---
+            const bandGrad = ctx.createLinearGradient(0, 0, 0, 360);
+            bandGrad.addColorStop(0, c.base);
+            bandGrad.addColorStop(1, c.dark);
+            ctx.fillStyle = bandGrad;
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(W, 0);
+            ctx.lineTo(W, 300);
+            ctx.quadraticCurveTo(W * 0.5, 380, 0, 300);
+            ctx.closePath();
+            ctx.fill();
+
+            // Decorative medical motifs, faint, kept clear of the photo
+            // circle and centered text
+            ctx.save();
+            ctx.globalAlpha = 0.13;
+            drawMedicalCross(ctx, 120, 95, 22, 'white');
+            drawPulseLine(ctx, 40, 195, 210, 'white');
+            drawCapsule(ctx, 165, 290, 74, 26, -0.35, 'white');
+            drawMedicalCross(ctx, 955, 100, 18, 'white');
+            drawCapsule(ctx, 905, 185, 66, 24, 0.3, 'white');
+            drawMedicalCross(ctx, 845, 290, 14, 'white');
+            drawMedicalCross(ctx, 90, 260, 12, 'white');
+            ctx.globalAlpha = 0.09;
+            ctx.fillStyle = 'white';
+            [[240, 60, 5], [1000, 220, 4], [70, 330, 4], [820, 90, 3],
+             [980, 300, 4], [280, 250, 3], [140, 180, 3], [920, 100, 4],
+             [50, 120, 3], [790, 230, 4]].forEach(([dx, dy, dr]) => {
+                ctx.beginPath();
+                ctx.arc(dx, dy, dr, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            ctx.restore();
+
+            // Static tagline at the very top
+            ctx.fillStyle = 'rgba(255,255,255,0.95)';
+            ctx.font = '600 26px "DS Font", "Noto Sans Bengali", Arial, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('সিলেটে নিয়মিত চেম্বার করছেন', W / 2, 46);
+
+            // Photo circle — center (540, 300), overlaps the wave edge
+            const photoCX = W / 2, photoCY = 290, photoR = 148;
+            if (doctorImageData) {
+                ctx.save();
+                ctx.fillStyle = 'white';
+                ctx.beginPath();
+                ctx.arc(photoCX, photoCY, photoR + 14, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(photoCX, photoCY, photoR, 0, Math.PI * 2);
+                ctx.closePath();
+                ctx.clip();
+                ctx.drawImage(doctorImageData, photoCX - photoR, photoCY - photoR, photoR * 2, photoR * 2);
+                ctx.restore();
+
+                ctx.strokeStyle = c.base;
+                ctx.lineWidth = 6;
+                ctx.beginPath();
+                ctx.arc(photoCX, photoCY, photoR + 4, 0, Math.PI * 2);
+                ctx.stroke();
+            } else {
+                // Placeholder ring so the layout still reads before a photo is added
+                ctx.save();
+                ctx.fillStyle = 'white';
+                ctx.beginPath();
+                ctx.arc(photoCX, photoCY, photoR + 14, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = c.tint;
+                ctx.beginPath();
+                ctx.arc(photoCX, photoCY, photoR, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = c.base;
+                ctx.lineWidth = 6;
+                ctx.stroke();
+                ctx.restore();
+            }
+
+            // --- Doctor name (serif, centered) ---
+            const doctorName = document.getElementById('doctorName').value || 'ডাঃ সুদিপ চন্দ্র দাস';
+            ctx.fillStyle = ink;
+            ctx.font = 'bold 58px "DS Font", "Noto Sans Bengali", serif';
+            ctx.textAlign = 'center';
+            const nameLineHeight = 66;
+            let y = wrapTextCenter(ctx, doctorName, W / 2, 530, 920, nameLineHeight);
+            // wrapTextCenter returns the Y one full line-height past the last
+            // drawn line (so callers can keep stacking text); step back to the
+            // actual last line before adding the pill's own gap.
+            const nameBottomY = y - nameLineHeight;
+
+            // --- Specialty pill ---
+            const specialty = document.getElementById('specialty').value || 'মেডিসিন বিশেষজ্ঞ';
+            ctx.font = '600 26px "DS Font", "Noto Sans Bengali", Arial, sans-serif';
+            const specWidth = ctx.measureText(specialty).width;
+            const pillPadX = 34, pillH = 52;
+            const pillY = nameBottomY + 26;
+            ctx.fillStyle = c.base;
+            const pillW = specWidth + pillPadX * 2;
+            const pillX = W / 2 - pillW / 2;
+            const r = pillH / 2;
+            ctx.beginPath();
+            ctx.moveTo(pillX + r, pillY);
+            ctx.arcTo(pillX + pillW, pillY, pillX + pillW, pillY + pillH, r);
+            ctx.arcTo(pillX + pillW, pillY + pillH, pillX, pillY + pillH, r);
+            ctx.arcTo(pillX, pillY + pillH, pillX, pillY, r);
+            ctx.arcTo(pillX, pillY, pillX + pillW, pillY, r);
+            ctx.closePath();
+            ctx.fill();
+            ctx.fillStyle = 'white';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(specialty, W / 2, pillY + pillH / 2 + 1);
+            ctx.textBaseline = 'alphabetic';
+
+            // --- Divider ---
+            const dividerY = pillY + pillH + 34;
+            ctx.strokeStyle = c.tint2;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(W / 2 - 70, dividerY);
+            ctx.lineTo(W / 2 + 70, dividerY);
+            ctx.stroke();
+
+            // --- Degrees (centered, muted, wraps and caps at the clinic card) ---
+            const degrees = document.getElementById('degrees').value ||
+                'এমবিবিএস, বিপিএল (স্বাস্থ্য) এমডি (মেডিসিন), বিএসএমএমইউ এমএসিপি (আমেরিকা)';
+            ctx.fillStyle = muted;
+            ctx.font = '400 23px "DS Font", "Noto Sans Bengali", Arial, sans-serif';
+            let degY = dividerY + 46;
+            const degreeLines = degrees.split('\n').filter(l => l.trim());
+            const clinicCardTop = 950;
+            degreeLines.forEach(line => {
+                if (degY < clinicCardTop - 30) {
+                    degY = wrapTextCenter(ctx, line, W / 2, degY, 900, 32);
+                }
+            });
+
+            // Website — placed under the degrees list with a bit of extra
+            // breathing room, centered as an icon+text group
+            const webY = degY + 20;
+            if (webY < clinicCardTop - 20) {
+                const websiteText = 'www.daktor.paibye.com';
+                ctx.font = '500 22px "DS Font", "Noto Sans Bengali", Arial, sans-serif';
+                const webTextWidth = ctx.measureText(websiteText).width;
+                const webIconSize = 22, webGap = 10;
+                const webGroupWidth = webIconSize + webGap + webTextWidth;
+                const webStartX = W / 2 - webGroupWidth / 2;
+                drawGlobe(ctx, webStartX + webIconSize / 2, webY - 7, 10, c.base);
+                ctx.fillStyle = c.dark;
+                ctx.textAlign = 'left';
+                ctx.fillText(websiteText, webStartX + webIconSize + webGap, webY);
+                ctx.textAlign = 'center';
+            }
+
+            // --- Clinic info card ---
+            const cardX = 60, cardY = clinicCardTop, cardW = W - 120, cardH = 244, cardR = 24;
+            const cardPath = new Path2D();
+            cardPath.moveTo(cardX + cardR, cardY);
+            cardPath.arcTo(cardX + cardW, cardY, cardX + cardW, cardY + cardH, cardR);
+            cardPath.arcTo(cardX + cardW, cardY + cardH, cardX, cardY + cardH, cardR);
+            cardPath.arcTo(cardX, cardY + cardH, cardX, cardY, cardR);
+            cardPath.arcTo(cardX, cardY, cardX + cardW, cardY, cardR);
+            cardPath.closePath();
+            ctx.fillStyle = c.tint;
+            ctx.fill(cardPath);
+            // left accent bar — clipped to the card's own rounded shape so
+            // it can never poke a sliver past the corners
+            ctx.save();
+            ctx.clip(cardPath);
+            ctx.fillStyle = c.base;
+            ctx.fillRect(cardX, cardY, 8, cardH);
+            ctx.restore();
+
+            const clinicInfo = document.getElementById('clinicInfo').value ||
+                'শতাব্দী মেডিকেল সার্ভিস\n৩৩, রূপস, নিরের মহল্লা , সিলেট\nচেম্বার সময়: শনিবার থেকে বৃহস্পতিবার (জুম্মার বাদ)';
+            const clinicLines = clinicInfo.split('\n').filter(l => l.trim());
+            const textX = cardX + 44;
+            const iconX = textX + 12;
+            const maxTextW = cardW - 100;
+            ctx.textAlign = 'left';
+
+            // Section title: icon + "চেম্বার তথ্য", with a thin rule underneath
+            const titleIconSize = 30;
+            const titleBaselineY = cardY + 38;
+            let titleTextX = textX;
+            if (chamberIconImg) {
+                ctx.drawImage(chamberIconImg, textX, cardY + 16, titleIconSize, titleIconSize);
+                titleTextX = textX + titleIconSize + 12;
+            }
+            ctx.fillStyle = c.dark;
+            ctx.font = '700 26px "DS Font", "Noto Sans Bengali", Arial, sans-serif';
+            ctx.fillText('চেম্বার তথ্য', titleTextX, titleBaselineY);
+            ctx.strokeStyle = c.tint2;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(textX, cardY + 54);
+            ctx.lineTo(cardX + cardW - 44, cardY + 54);
+            ctx.stroke();
+
+            let lineY = cardY + 92;
+
+            clinicLines.forEach((line, idx) => {
+                if (idx === 0) {
+                    ctx.fillStyle = ink;
+                    ctx.font = '700 30px "DS Font", "Noto Sans Bengali", Arial, sans-serif';
+                    lineY = wrapTextLeft(ctx, line, textX, lineY, maxTextW, 38);
+                    lineY += 8;
+                } else if (idx === 1) {
+                    drawPin(ctx, iconX, lineY - 8, 11, c.base);
+                    ctx.fillStyle = muted;
+                    ctx.font = '400 23px "DS Font", "Noto Sans Bengali", Arial, sans-serif';
+                    lineY = wrapTextLeft(ctx, line, textX + 34, lineY, maxTextW - 34, 32);
+                    lineY += 4;
+                } else {
+                    drawClock(ctx, iconX, lineY - 8, 11, c.base);
+                    ctx.fillStyle = muted;
+                    ctx.font = '400 22px "DS Font", "Noto Sans Bengali", Arial, sans-serif';
+                    lineY = wrapTextLeft(ctx, line, textX + 34, lineY, maxTextW - 34, 30);
+                }
+            });
+
+            // Logo watermark, top-right of the clinic card — uses the
+            // uploaded logo if there is one, otherwise the default logo.png
+            const logoToDraw = logoImageData || defaultLogoImg;
+            if (logoToDraw) {
+                ctx.save();
+                const logoMax = 110;
+                let lw = logoToDraw.width, lh = logoToDraw.height;
+                const aspect = lw / lh;
+                if (lw > logoMax) { lw = logoMax; lh = lw / aspect; }
+                if (lh > logoMax) { lh = logoMax; lw = lh * aspect; }
+                ctx.globalAlpha = 0.90;
+                ctx.drawImage(logoToDraw, cardX + cardW - lw - 24, cardY + (cardH - lh) / 2, lw, lh);
+                ctx.restore();
+            }
+
+            // --- Bottom call-to-action bar (with breathing room above it) ---
+            const gapAboveCTA = 32;
+            const ctaY = cardY + cardH + gapAboveCTA;
+            const ctaH = H - ctaY;
+            ctx.fillStyle = c.dark;
+            ctx.fillRect(0, ctaY, W, ctaH);
+
+            const contact = document.getElementById('contact').value || '01732-328633';
+            const maxContactWidth = W - 140;
+            const fit = fitContactLines(ctx, contact, maxContactWidth, 2, 40, 20, '700', 'DS Font", "Noto Sans Bengali');
+            const numberLineHeight = fit.size * 1.18;
+            const numbersBlockHeight = fit.lines.length * numberLineHeight;
+            const labelRowHeight = 30;
+            const rowGap = 14;
+            const totalContentHeight = labelRowHeight + rowGap + numbersBlockHeight;
+            const blockTop = ctaY + Math.max(16, (ctaH - totalContentHeight) / 2);
+
+            // Icon + label, centered as one group
+            const labelText = 'সিরিয়ালের জন্য কল করুন';
+            ctx.font = '500 22px "DS Font", "Noto Sans Bengali", Arial, sans-serif';
+            const labelWidth = ctx.measureText(labelText).width;
+            const iconSize = 26;
+            const iconGap = 10;
+            const rowStartX = W / 2 - (iconSize + iconGap + labelWidth) / 2;
+            const labelCenterY = blockTop + labelRowHeight / 2;
+            drawPhoneIcon(ctx, rowStartX + iconSize / 2, labelCenterY, iconSize / 2, 'white');
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle = 'rgba(255,255,255,0.85)';
+            ctx.fillText(labelText, rowStartX + iconSize + iconGap, labelCenterY);
+
+            // Number(s) — auto-sized and wrapped so a list never runs off the edge
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'alphabetic';
+            ctx.fillStyle = 'white';
+            ctx.font = `700 ${fit.size}px "Noto Sans Bengali", Arial, sans-serif`;
+            let numY = blockTop + labelRowHeight + rowGap + fit.size * 0.85;
+            fit.lines.forEach(line => {
+                ctx.fillText(line, W / 2, numY);
+                numY += numberLineHeight;
+            });
+        }
+
+        function downloadBanner() {
+            const canvas = document.getElementById('bannerCanvas');
+
+            if (canvas.width === 0 || canvas.height === 0) {
+                alert('প্রথমে ব্যানার তৈরি করুন!');
+                return;
+            }
+
+            canvas.toBlob(function (blob) {
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                const doctorName = document.getElementById('doctorName').value || 'doctor_banner';
+
+                let fileName = doctorName.trim().replace(/\s+/g, '_');
+                if (!fileName) fileName = 'doctor_banner';
+
+                link.href = url;
+                link.download = `${fileName}.webp`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+            }, 'image/webp', 0.80);
+        }
+
+        window.onload = function () {
+            // Font loading handled above; it triggers the first render.
+        };
+    </script>
+</body>
+
+</html>
