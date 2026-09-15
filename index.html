@@ -813,7 +813,6 @@
                 'শতাব্দী মেডিকেল সার্ভিস\n৩৩, রূপস, নিরের মহল্লা , সিলেট\nচেম্বার সময়: শনিবার থেকে বৃহস্পতিবার (জুম্মার বাদ)';
             const clinicLines = clinicInfo.split('\n').filter(l => l.trim());
             const textX = cardX + 44;
-            const iconX = textX + 12;
             const maxTextW = cardW - 100;
             ctx.textAlign = 'left';
 
@@ -844,16 +843,14 @@
                     lineY = wrapTextLeft(ctx, line, textX, lineY, maxTextW, 38);
                     lineY += 8;
                 } else if (idx === 1) {
-                    drawPin(ctx, iconX, lineY - 8, 11, c.base);
                     ctx.fillStyle = muted;
                     ctx.font = '400 23px "DS Font", "Noto Sans Bengali", Arial, sans-serif';
-                    lineY = wrapTextLeft(ctx, line, textX + 34, lineY, maxTextW - 34, 32);
+                    lineY = wrapTextLeft(ctx, line, textX, lineY, maxTextW, 32);
                     lineY += 4;
                 } else {
-                    drawClock(ctx, iconX, lineY - 8, 11, c.base);
                     ctx.fillStyle = muted;
                     ctx.font = '400 22px "DS Font", "Noto Sans Bengali", Arial, sans-serif';
-                    lineY = wrapTextLeft(ctx, line, textX + 34, lineY, maxTextW - 34, 30);
+                    lineY = wrapTextLeft(ctx, line, textX, lineY, maxTextW, 30);
                 }
             });
 
